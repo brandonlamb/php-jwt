@@ -47,18 +47,17 @@ class JWT
             throw new UnexpectedValueException('Wrong number of segments');
         }
         list($headb64, $bodyb64, $cryptob64) = $tks;
-        if (null === ($header = JWT::jsonDecode(JWT::urlsafeB64Decode($headb64)))) {
+        if (null === ($header = static::jsonDecode(static::urlsafeB64Decode($headb64)))) {
             throw new UnexpectedValueException('Invalid segment encoding');
         }
-        if (null === $payload = JWT::jsonDecode(JWT::urlsafeB64Decode($bodyb64))) {
+        if (null === ($payload = static::jsonDecode(static::urlsafeB64Decode($bodyb64)))) {
             throw new UnexpectedValueException('Invalid segment encoding');
         }
-        $sig = JWT::urlsafeB64Decode($cryptob64);
         if ($verify) {
             if (empty($header->alg)) {
                 throw new DomainException('Empty algorithm');
             }
-            if ($sig != JWT::sign("$headb64.$bodyb64", $key, $header->alg)) {
+            if (static::urlsafeB64Decode($cryptob64) != static::sign("{$headb64}.{$bodyb64}", $key, $header->alg)) {
                 throw new UnexpectedValueException('Signature verification failed');
             }
         }
@@ -82,12 +81,12 @@ class JWT
         $header = array('typ' => 'JWT', 'alg' => $algo);
 
         $segments = array();
-        $segments[] = JWT::urlsafeB64Encode(JWT::jsonEncode($header));
-        $segments[] = JWT::urlsafeB64Encode(JWT::jsonEncode($payload));
+        $segments[] = static::urlsafeB64Encode(static::jsonEncode($header));
+        $segments[] = static::urlsafeB64Encode(static::jsonEncode($payload));
         $signing_input = implode('.', $segments);
 
-        $signature = JWT::sign($signing_input, $key, $algo);
-        $segments[] = JWT::urlsafeB64Encode($signature);
+        $signature = static::sign($signing_input, $key, $algo);
+        $segments[] = static::urlsafeB64Encode($signature);
 
         return implode('.', $segments);
     }
@@ -105,7 +104,7 @@ class JWT
      */
     public static function sign($msg, $key, $method = 'HS256')
     {
-        $methods = array(
+        static $methods = array(
             'HS256' => 'sha256',
             'HS384' => 'sha384',
             'HS512' => 'sha512',
@@ -127,8 +126,8 @@ class JWT
     public static function jsonDecode($input)
     {
         $obj = json_decode($input);
-        if (function_exists('json_last_error') && $errno = json_last_error()) {
-            JWT::_handleJsonError($errno);
+        if (function_exists('json_last_error') && ($errno = json_last_error())) {
+            static::_handleJsonError($errno);
         } else if ($obj === null && $input !== 'null') {
             throw new DomainException('Null result with non-null input');
         }
@@ -146,8 +145,8 @@ class JWT
     public static function jsonEncode($input)
     {
         $json = json_encode($input);
-        if (function_exists('json_last_error') && $errno = json_last_error()) {
-            JWT::_handleJsonError($errno);
+        if (function_exists('json_last_error') && ($errno = json_last_error())) {
+            static::_handleJsonError($errno);
         } else if ($json === 'null' && $input !== null) {
             throw new DomainException('Null result with non-null input');
         }
@@ -192,7 +191,7 @@ class JWT
      */
     private static function _handleJsonError($errno)
     {
-        $messages = array(
+        static $messages = array(
             JSON_ERROR_DEPTH => 'Maximum stack depth exceeded',
             JSON_ERROR_CTRL_CHAR => 'Unexpected control character found',
             JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON'
