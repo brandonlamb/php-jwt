@@ -18,7 +18,7 @@ class Token implements ArrayAccess
 	/**
 	 * @var array, internal header storage
 	 */
-	protected $header;
+	protected $headers;
 
 	/**
 	 * @var array, internal claims storage
@@ -101,10 +101,10 @@ class Token implements ArrayAccess
 	 */
 	public function getHeader($offset)
 	{
-		if (!isset($this->header[(string) $offset]) {
+		if (!isset($this->headers[(string) $offset])) {
 			throw new \OutOfBoundsException($offset . ' is not a valid value');
 		}
-		return $this->header[(string) $offset];
+		return $this->headers[(string) $offset];
 	}
 
 	/**
@@ -124,7 +124,7 @@ class Token implements ArrayAccess
 	 */
 	public function setHeader($offset, $value)
 	{
-		$this->header[(string) $offset] = $value;
+		$this->headers[(string) $offset] = $value;
 		return $this;
 	}
 
@@ -172,6 +172,7 @@ class Token implements ArrayAccess
 	public function setClaim($offset, $value)
 	{
 		$this->claims[(string) $offset] = $value;
+		return $this;
 	}
 
 	/**

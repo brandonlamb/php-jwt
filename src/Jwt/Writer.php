@@ -65,7 +65,7 @@ abstract class Writer
     	];
 
         $signing = implode('.', $segments);
-        $signature = self::sign($signing, $token->getKey(), $token->getHeader('algo'));
+        $signature = self::sign($signing, $token->getKey(), $token->getHeader('alg'));
         $segments[] = self::urlsafeB64Encode($signature);
 
         return implode('.', $segments);

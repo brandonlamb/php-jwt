@@ -71,16 +71,18 @@ abstract class Reader
         }
 
         if ($verify) {
-            if (empty($header->alg)) {
+            if (empty($header['alg'])) {
                 throw new \DomainException('Empty algorithm');
             }
 
-            if (self::urlsafeB64Decode($cryptob64) != self::sign("{$headb64}.{$bodyb64}", $key, $header->alg)) {
+            if (self::urlsafeB64Decode($cryptob64) != self::sign("{$headb64}.{$bodyb64}", $key, $header['alg'])) {
                 throw new \UnexpectedValueException('Signature verification failed');
             }
         }
 
-        return $payload;
+        return (new Token())
+            ->setHeaders($header)
+            ->setClaims($payload);
     }
 
     /**
@@ -108,7 +110,7 @@ abstract class Reader
      */
     public static function jsonDecode($input)
     {
-        $obj = json_decode($input);
+        $obj = json_decode($input, true);
 
         if (function_exists('json_last_error') && ($errno = json_last_error())) {
             self::handleJsonError($errno);
