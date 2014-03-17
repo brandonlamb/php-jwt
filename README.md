@@ -32,7 +32,7 @@ $jwt = Jwt\Writer::encode($token, 'app_key', 'HS256');
 
 $token = Jwt\Reader::decode($jwt, 'app_key');
 
-print_r($decoded);
+print_r($token);
 ?>
 ```
 
