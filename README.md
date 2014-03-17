@@ -11,7 +11,7 @@ Installation
 Use composer to manage your dependencies and download PHP-JWT:
 
 ```bash
-php composer require firebase/php-jwt
+php composer require brandonlamb/php-jwt
 ```
 
 Example
